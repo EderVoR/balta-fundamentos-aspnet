@@ -12,7 +12,6 @@ namespace Blog.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseNpgsql("User ID=postgres; Password=admin123; Server=localhost; Port=5432; Database=Blog; Pooling=true;");
-            //("Server=localhost,1433;Database=FluentBlog;User ID=sa;Password=1q2w3e4r@#$");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
