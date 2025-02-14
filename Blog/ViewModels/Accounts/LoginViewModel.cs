@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Blog.ViewModels
+namespace Blog.ViewModels.Accounts
 {
-	public class LoginViewModel
-	{
+    public class LoginViewModel
+    {
         [Required(ErrorMessage = "Email nessario preencher")]
         [EmailAddress]
         public string Email { get; set; }

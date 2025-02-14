@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Blog.ViewModels
+namespace Blog.ViewModels.Categories
 {
-	public class EditorCategoryViewModel
-	{
+    public class EditorCategoryViewModel
+    {
         [Required]
         [StringLength(40, MinimumLength = 3, ErrorMessage = "O campo deve possuir entre 3 e 40 caracteres")]
         public string Name { get; set; }

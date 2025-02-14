@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Blog.ViewModels
+namespace Blog.ViewModels.Accounts
 {
-	public class RegisterViewModel
-	{
+    public class RegisterViewModel
+    {
         [Required(ErrorMessage = "O nome é obrigatório")]
         public string Name { get; set; }
 

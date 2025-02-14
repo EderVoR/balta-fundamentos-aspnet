@@ -3,13 +3,16 @@ using Blog.Extensions;
 using Blog.Models;
 using Blog.Services;
 using Blog.ViewModels;
+using Blog.ViewModels.Accounts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SecureIdentity.Password;
+using System.Text.RegularExpressions;
 
 namespace Blog.Controllers
 {
-	[ApiController]
+    [ApiController]
 	public class AccountController : ControllerBase
 	{
 		[HttpPost("v1/account/login")]
@@ -43,7 +46,7 @@ namespace Blog.Controllers
 
 		[HttpPost("v1/account")]
 		public async Task<IActionResult> Register([FromBody] RegisterViewModel model,
-			[FromServices] BlogDataContext context)
+			[FromServices] BlogDataContext context, [FromServices] EmailService emailService)
 		{
 			if(!ModelState.IsValid)
 				return BadRequest(new ResultViewModel<string>(ModelState.GetErrors()));
@@ -63,6 +66,9 @@ namespace Blog.Controllers
 				await context.Users.AddAsync(user);
 				await context.SaveChangesAsync();
 
+				emailService.Send(user.Name, user.Email, "Bem vindo", $"Sua senha é {password}");
+
+
 				return Ok(new ResultViewModel<dynamic>(new
 				{
 					email = user.Email, password
@@ -76,6 +82,45 @@ namespace Blog.Controllers
 			{
 				return StatusCode(500, new ResultViewModel<string>("Erro interno no banco de dados"));
 			}
+		}
+
+		//[Authorize]
+		[HttpPost("v1/accounts/upload-image")]
+		public async Task<IActionResult> UploadImage([FromBody] UploadViewModel model,
+			[FromServices] BlogDataContext context)
+		{
+			var fileName = $"{Guid.NewGuid().ToString()}.jpg";
+			var data = new Regex(@"^data:imag\/[a-z]+;base64,").Replace(model.Base64Image, "");
+			var bytes = Convert.FromBase64String(data);
+
+			try
+			{
+				await System.IO.File.WriteAllBytesAsync($"wwwroot/images/{fileName}", bytes);
+			}
+			catch(Exception ex)
+			{
+				return StatusCode(500, new ResultViewModel<string>("Erro interno de servidor"));
+			}
+
+			var user = await context.Users
+				.FirstOrDefaultAsync(x => x.Email == User.Identity.Name);
+
+			if (user == null)
+				return NotFound(new ResultViewModel<string>("Usuário não encontrado"));
+
+			user.Image = $"https:localhost/images/{fileName}";
+
+			try
+			{
+				context.Users.Update(user);
+				await context.SaveChangesAsync();
+			}
+			catch(Exception ex)
+			{
+				return StatusCode(500, new ResultViewModel<string>("Erro inteno no servidor"));
+			}
+
+			return Ok(new ResultViewModel<string>("Imagem salva com sucesso"));
 		}
 	}
 }
