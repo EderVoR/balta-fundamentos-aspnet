@@ -84,13 +84,13 @@ namespace Blog.Controllers
 			}
 		}
 
-		//[Authorize]
+		[Authorize]
 		[HttpPost("v1/accounts/upload-image")]
 		public async Task<IActionResult> UploadImage([FromBody] UploadViewModel model,
 			[FromServices] BlogDataContext context)
 		{
 			var fileName = $"{Guid.NewGuid().ToString()}.jpg";
-			var data = new Regex(@"^data:imag\/[a-z]+;base64,").Replace(model.Base64Image, "");
+			var data = new Regex(@"^data:image\/[a-z]+;base64,").Replace(model.Base64Image, "");
 			var bytes = Convert.FromBase64String(data);
 
 			try

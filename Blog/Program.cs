@@ -4,19 +4,13 @@ using Blog.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var key = Encoding.ASCII.GetBytes(Configuration.JwtKey);
 
 ConfigurationAuthentication(builder);
-
-builder.Services
-	.AddControllers()
-	.ConfigureApiBehaviorOptions(options =>
-	{
-		options.SuppressModelStateInvalidFilter = true;
-	});
-
+ConfigureMvc(builder);
 ConfigurationService(builder);
 
 var app = builder.Build();
@@ -63,4 +57,19 @@ void ConfigurationEmail(WebApplication app)
 	var smtp = new Configuration.SmtpConfiguration();
 	app.Configuration.GetSection("Smtp").Bind(smtp);
 	Configuration.Smtp = smtp;
+}
+
+void ConfigureMvc(WebApplicationBuilder builder)
+{
+	builder.Services
+	.AddControllers()
+	.ConfigureApiBehaviorOptions(options =>
+	{
+		options.SuppressModelStateInvalidFilter = true;
+	})
+	.AddJsonOptions(x =>
+	{
+		x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+		x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+	});
 }
