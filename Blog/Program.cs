@@ -2,7 +2,9 @@ using Blog;
 using Blog.Data;
 using Blog.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -19,6 +21,7 @@ ConfigurationEmail(app);
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseResponseCompression();
 app.UseStaticFiles();
 app.MapControllers();
 app.Run();
@@ -61,6 +64,15 @@ void ConfigurationEmail(WebApplication app)
 
 void ConfigureMvc(WebApplicationBuilder builder)
 {
+	builder.Services.AddResponseCompression(option =>
+	{
+		option.Providers.Add<GzipCompressionProvider>();
+	});
+	builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+	{
+		options.Level = CompressionLevel.Optimal;
+	});
+
 	builder.Services
 	.AddControllers()
 	.ConfigureApiBehaviorOptions(options =>
