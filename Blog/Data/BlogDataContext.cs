@@ -6,12 +6,14 @@ namespace Blog.Data
 {
     public class BlogDataContext : DbContext
     {
+        public BlogDataContext(DbContextOptions<BlogDataContext> options) : base(options)
+        {
+                
+        }
+
         public DbSet<Category> Categories { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<User> Users { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseNpgsql("User ID=postgres; Password=admin123; Server=localhost; Port=5432; Database=Blog; Pooling=true;");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
